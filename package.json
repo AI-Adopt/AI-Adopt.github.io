@@ -2,12 +2,15 @@
   "name": "adopt-ai",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.19.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "build:pages": "cross-env GITHUB_ACTIONS=true GITHUB_REPOSITORY=AI-Adopt/AI-Adopt.github.io next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "node --require ./tests/register.cjs --test tests/financial-model.test.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -32,6 +35,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",

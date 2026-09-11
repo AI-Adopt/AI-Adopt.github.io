@@ -38,7 +38,7 @@ export default function LandingPage() {
                 <Button size="lg" className="bg-white text-[#2f1c4d] hover:bg-[#f2ecff]" asChild>
                   <Link href="/onboarding">{t("start")} <ArrowRight /></Link>
                 </Button>
-                <span className="text-sm text-white/55">{t("fiveMinutes")}</span>
+                <span className="text-sm text-white/55">{t("advice.duration")}</span>
               </div>
             </div>
             <AssessmentPreview />
@@ -100,11 +100,12 @@ export default function LandingPage() {
                 <h2 className="text-5xl font-semibold leading-[1] tracking-[-.06em] md:text-7xl">{t("roadmapTitle")}</h2>
               </div>
               <div className="divide-y divide-border border-y border-border">
+                <p className="py-3 text-xs text-muted-foreground">{t("advice.example")}</p>
                 {opportunities.map(([id, title, value], i) => (
-                  <div key={title} className="grid grid-cols-[42px_80px_1fr_auto] items-center gap-4 py-6">
+                  <div key={title} className="grid min-w-0 grid-cols-[24px_60px_minmax(0,1fr)] items-center gap-3 py-6 sm:grid-cols-[42px_80px_minmax(0,1fr)_auto] sm:gap-4">
                     <span className="text-sm text-muted-foreground">0{i + 1}</span>
-                    <OpportunityGraphic opportunityId={id} compact />
-                    <span className="text-xl font-semibold tracking-[-.025em]">{td(title)}</span>
+                    <OpportunityGraphic opportunityId={id} compact className="max-w-full" />
+                    <span className="min-w-0 break-words text-xl font-semibold tracking-[-.025em]">{td(title)}</span>
                     <span className="hidden text-sm text-muted-foreground sm:block">{td(value)}</span>
                   </div>
                 ))}
@@ -142,7 +143,7 @@ function AssessmentPreview() {
       <div className="absolute -left-8 -top-8 h-28 w-28 rounded-full bg-[#ffdd8d]" />
       <div className="absolute -bottom-10 -right-8 h-36 w-36 rounded-[35%] bg-[#ff9d86]" />
       <div className="relative rounded-[28px] bg-[#f8f5ff] p-6 text-[#2f1c4d] shadow-[0_28px_80px_rgba(0,0,0,.28)] md:p-9">
-        <div className="mb-12 flex justify-between text-xs text-[#2f1c4d]/55"><span>AdoptAI</span><span>{t("stepOf", { current: 1, total: 7 })}</span></div>
+        <div className="mb-12 flex justify-between text-xs text-[#2f1c4d]/55"><span>AdoptAI</span><span>{t("discovery")}</span></div>
         <p className="mb-3 text-sm text-[#6b4eff]">01 →</p>
         <h2 className="text-3xl font-semibold leading-tight tracking-[-.05em] md:text-5xl">{t("industryQuestion")}</h2>
         <p className="mt-4 text-sm text-[#2f1c4d]/60">{t("industryHelp")}</p>
@@ -166,7 +167,8 @@ function AssessmentPreview() {
 }
 
 function ColorPanel({ color, label, title, text, graphic }: { color: string; label: string; title: string; text: string; graphic: "discover" | "prioritize" | "prove" }) {
-  return <article className={`${color} flex min-h-[520px] flex-col rounded-[34px] p-8 md:p-10`}><span className="text-sm font-semibold">{label}</span><PanelGraphic type={graphic} /><div className="mt-auto"><h3 className="text-4xl font-semibold leading-[1.04] tracking-[-.055em]">{title}</h3><p className="mt-5 leading-relaxed text-foreground/65">{text}</p></div></article>;
+  const { t } = useLanguage();
+  return <article className={`${color} flex min-h-[520px] min-w-0 flex-col overflow-hidden rounded-[34px] p-6 sm:p-8 md:p-10`}><span className="text-sm font-semibold">{label}</span><PanelGraphic type={graphic} />{graphic !== "discover" && <p className="mb-3 text-xs text-foreground/65">{t("advice.example")}</p>}<div className="mt-auto"><h3 className="text-4xl font-semibold leading-[1.04] tracking-[-.055em]">{title}</h3><p className="mt-5 leading-relaxed text-foreground/65">{text}</p></div></article>;
 }
 
 function PanelGraphic({ type }: { type: "discover" | "prioritize" | "prove" }) {

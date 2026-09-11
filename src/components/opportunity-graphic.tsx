@@ -36,6 +36,7 @@ function iconFor(id: string) {
     case "it-helpdesk": return <Helpdesk />;
     case "marketing-content": return <Content />;
     case "contract-review": return <Contract />;
+    case "reporting-automation": return <Reporting />;
     default: return <Automation />;
   }
 }
@@ -191,4 +192,14 @@ function Automation() {
       ))}
     </g>
   );
+}
+
+function Reporting() {
+  return <g>
+    <rect x="29" y="18" width="103" height="126" rx="12" fill={PAPER} />
+    <rect x="45" y="36" width="53" height="8" rx="4" fill={LILAC} />
+    <rect x="45" y="98" width="16" height="26" rx="4" fill={PEACH} />
+    <rect x="70" y="77" width="16" height="47" rx="4" fill={LAVENDER} />
+    <rect x="95" y="58" width="16" height="66" rx="4" fill={PLUM} />
+  </g>;
 }

@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Nav } from "@/components/nav";
-import { AnalysisLoader } from "@/components/analysis-loader";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { PageTransition } from "@/components/page-transition";
 import { Button } from "@/components/ui/button";
@@ -14,23 +13,18 @@ import { useLanguage } from "@/context/language-provider";
 
 export default function AnalysisPage() {
   const router = useRouter();
-  const { opportunities, onboarding } = useAssessment();
+  const { opportunities, onboarding, setSelectedOpportunity } = useAssessment();
   const { t, td } = useLanguage();
-  const [loading, setLoading] = useState(true);
-  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
-    if (!onboarding.industry) router.replace("/onboarding");
-  }, [onboarding.industry, router]);
+    if (!onboarding.industry || !opportunities.length) router.replace("/onboarding");
+  }, [onboarding.industry, opportunities.length, router]);
 
   if (!onboarding.industry) return null;
 
   return (
     <PageTransition>
-      <Nav ctaHref="/prioritize" ctaLabel={t("prioritize")} showCta={showResults} />
-      {loading && !showResults ? (
-        <AnalysisLoader onComplete={() => { setLoading(false); setShowResults(true); }} />
-      ) : (
+      <Nav ctaHref="/prioritize" ctaLabel={t("prioritize")} />
         <main className="mx-auto max-w-[1500px] px-5 pb-24 pt-32 md:px-8">
           <header className="mb-12 rounded-[38px] bg-[#2f1c4d] p-8 text-white md:p-14">
             <p className="eyebrow mb-6 text-white/60">
@@ -43,9 +37,10 @@ export default function AnalysisPage() {
               {t("basedOn", { industry: td(onboarding.industry ?? ""), departments: (onboarding.departments ?? []).map(td).join(", ") })}
             </p>
           </header>
+          <p className="mb-7 max-w-4xl text-sm leading-relaxed text-muted-foreground">{t("advice.reviewHelp")} {t("advice.noPortfolioSum")}</p>
           <div className="mb-16">
-            {opportunities.map((opp, i) => (
-              <OpportunityCard key={opp.id} opportunity={opp} index={i} />
+            {[...opportunities].sort((a, b) => (b.priorityScore ?? 0) - (a.priorityScore ?? 0)).map((opp, i) => (
+              <OpportunityCard key={opp.id} opportunity={opp} index={i} onClick={() => { setSelectedOpportunity(opp.id); router.push("/roi"); }} />
             ))}
           </div>
           <div className="flex justify-end">
@@ -54,7 +49,6 @@ export default function AnalysisPage() {
             </Button>
           </div>
         </main>
-      )}
     </PageTransition>
   );
 }

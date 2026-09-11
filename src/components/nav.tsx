@@ -27,7 +27,7 @@ export function Nav({
         <Link href="/" className="text-xl font-bold tracking-[-0.04em]">
           AdoptAI
         </Link>
-        <nav className="hidden items-center gap-10 text-base md:flex">
+        <nav className="hidden items-center gap-10 text-base lg:flex">
           <Link href="/#platform" className={inverted ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-foreground"}>{t("platform")}</Link>
           <Link href="/#how-it-works" className={inverted ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-foreground"}>{t("how")}</Link>
           <Link href="/#outcomes" className={inverted ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-foreground"}>{t("outcomes")}</Link>
@@ -36,7 +36,9 @@ export function Nav({
           <div className="relative">
             <button
               type="button"
-              aria-label="Select language"
+              aria-label={t("advice.language")}
+              aria-expanded={open}
+              onKeyDown={event => { if (event.key === "Escape") setOpen(false); }}
               onClick={() => setOpen((value) => !value)}
               className={`flex h-11 items-center gap-2 rounded-[3px] px-3.5 text-sm font-semibold transition-colors ${inverted ? "bg-white/10 text-white hover:bg-white/20" : "bg-secondary hover:bg-secondary/70"}`}
             >
@@ -61,7 +63,7 @@ export function Nav({
             )}
           </div>
           {showCta && (
-            <Button variant={inverted ? "secondary" : "default"} asChild>
+            <Button className="hidden sm:inline-flex" variant={inverted ? "secondary" : "default"} asChild>
               <Link href={ctaHref}>{ctaLabel === "Start assessment" ? t("start") : ctaLabel}</Link>
             </Button>
           )}

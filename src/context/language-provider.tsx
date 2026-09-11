@@ -1,5 +1,7 @@
 "use client";
 
+import { advisoryText } from "@/lib/advisory-copy";
+
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export type Language = "en" | "es" | "fr" | "de" | "pt" | "it";
@@ -199,6 +201,12 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
+export function translateKey(language: Language, key: string, values: Record<string, string | number> = {}): string {
+  let text = advisoryText(key, language) ?? supplemental[language][key] ?? translations[language][key] ?? supplemental.en[key] ?? en[key] ?? key;
+  for (const [name, value] of Object.entries(values)) text = text.replaceAll(`{${name}}`, String(value));
+  return text;
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("en");
   useEffect(() => {
@@ -216,12 +224,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => ({
     language,
     setLanguage,
-    t: (key: string, values: Record<string, string | number> = {}) => {
-      let text = supplemental[language][key] ?? translations[language][key] ?? supplemental.en[key] ?? en[key] ?? key;
-      for (const [name, value] of Object.entries(values)) text = text.replace(`{${name}}`, String(value));
-      return text;
-    },
+    t: (key: string, values: Record<string, string | number> = {}) => translateKey(language, key, values),
     td: (text: string) => {
+      const advisory = advisoryText(text, language);
+      if (advisory) return advisory;
+      const terms: Record<string, string> = { "Technology": "technology", "Financial Services": "financialServices", "Healthcare": "healthcare", "Retail": "retail", "Manufacturing": "manufacturing", "Professional Services": "professionalServices", "Other": "other", "Customer Support": "customerSupport", "Sales": "sales", "Operations": "operations", "HR": "hr", "Finance": "finance", "IT": "it", "Marketing": "marketing", "Legal": "legal" };
+      if (terms[text]) return translateKey(language, terms[text]);
       const key = dynamicKeys[text];
       if (key) return supplemental[language][key] ?? supplemental.en[key] ?? text;
       const exact = dynamic[language][text] ?? dynamicExtended[language][text];

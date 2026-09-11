@@ -11,6 +11,35 @@ export interface OnboardingData {
   businessProcesses: string;
   repetitiveWorkflows: string[];
   manualOperationsHours: number;
+  currency?: Currency;
+  country?: string;
+  objective?: "cost" | "capacity" | "quality";
+  budget?: number;
+  targetMonths?: number;
+  averageSalary?: number;
+  employerCostPercent?: number;
+  workingDays?: number;
+  hoursPerDay?: number;
+  softwareStack?: string[];
+  dataQuality?: number;
+  processMaturity?: number;
+  adoptionReadiness?: number;
+  infrastructureReadiness?: number;
+  sensitiveData?: boolean;
+  euHostingRequired?: boolean;
+  processes?: ProcessProfile[];
+}
+
+export interface ProcessProfile {
+  id: string;
+  employeeCount: number;
+  tasksPerMonth: number;
+  minutesPerTask: number;
+  errorRatePercent: number;
+  errorCost: number;
+  cashRealizationPercent: number;
+  evidence: "estimate" | "measured";
+  notes?: string;
 }
 
 export interface Opportunity {
@@ -27,9 +56,38 @@ export interface Opportunity {
   quadrant: "quick-wins" | "strategic" | "secondary" | "avoid";
   dataAvailability: number;
   complianceRisk: "Low" | "Medium" | "High";
+  currency?: Currency;
+  priorityScore?: number;
+  evidence?: "estimate" | "measured";
+  roi?: ROIResults;
 }
 
 export interface ROIInputs {
+  notes: string;
+  budget: number;
+  targetMonths: number;
+  modelVersion: 3;
+  minutesPerTask: number;
+  workingDays: number;
+  hoursPerDay: number;
+  employerCostPercent: number;
+  cashRealizationPercent: number;
+  errorRatePercent: number;
+  errorCost: number;
+  otherCostReductionPercent: number;
+  costPerTask: number;
+  implementationMonths: number;
+  rampMonths: number;
+  contingencyPercent: number;
+  discountRate: number;
+  implementationDifficulty: number;
+  startMonth: string;
+  downsideBenefitPercent: number;
+  downsideCostPercent: number;
+  downsideDelayMonths: number;
+  upsideBenefitPercent: number;
+  upsideCostPercent: number;
+  evidence: "estimate" | "measured";
   employeeCount: number;
   averageSalary: number;
   manualHoursPerDay: number;
@@ -71,9 +129,9 @@ export interface ROIResults {
   annualRecurringCost: number;
   netFirstYearSavings: number;
   firstYearProfit: number;
-  paybackMonths: number;
+  paybackMonths: number | null;
   breakEvenMonth: number | null;
-  roi12Month: number;
+  roi12Month: number | null;
   value24Month: number;
   effectiveAutomationPercent: number;
   operationalEfficiencyGain: number;
@@ -81,7 +139,22 @@ export interface ROIResults {
   confidenceScore: number;
   costBeforeAI: number;
   costAfterAI: number;
-  monthlyData: { month: string; cumulativeBenefit: number; cumulativeCost: number; net: number }[];
+  baselineHours: number;
+  capacityCapped: boolean;
+  hoursSaved: number;
+  capacityValue: number;
+  cashLaborSavings: number;
+  errorSavings: number;
+  steadyStateAnnualNet: number;
+  totalCost12: number;
+  totalCost36: number;
+  npv36: number;
+  peakFunding: number;
+  benefitCostRatio: number | null;
+  breakEvenDate: string | null;
+  goLiveMonth: number;
+  verdict: "pilot" | "validate" | "defer";
+  monthlyData: { month: string; period: number; benefit: number; operatingCost: number; cashFlow: number; cumulativeBenefit: number; cumulativeCost: number; net: number }[];
 }
 
 export interface Recommendation {
@@ -89,6 +162,7 @@ export interface Recommendation {
   reasons: string[];
   roiSnapshot?: ROIResults;
   currency?: Currency;
+  inputs?: ROIInputs;
 }
 
 export interface AssessmentState {
@@ -97,4 +171,5 @@ export interface AssessmentState {
   selectedOpportunityId: string | null;
   roiInputs: Partial<ROIInputs>;
   recommendation: Recommendation | null;
+  roiByOpportunity: Record<string, Partial<ROIInputs>>;
 }

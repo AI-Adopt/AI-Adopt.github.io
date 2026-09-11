@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { useAssessment } from "@/context/assessment-provider";
 import { useLanguage } from "@/context/language-provider";
-import { formatCurrency } from "@/lib/utils";
 import type { Opportunity } from "@/types/assessment";
 
 interface PriorityMatrixProps {
@@ -16,7 +15,7 @@ interface PriorityMatrixProps {
 export function PriorityMatrix({ opportunities }: PriorityMatrixProps) {
   const router = useRouter();
   const { setSelectedOpportunity } = useAssessment();
-  const { t, td } = useLanguage();
+  const { t, td, language } = useLanguage();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const padding = 72;
@@ -24,8 +23,8 @@ export function PriorityMatrix({ opportunities }: PriorityMatrixProps) {
   const height = 560;
   const plotW = width - padding * 2;
   const plotH = height - padding * 2;
-  const toX = (difficulty: number) => padding + ((difficulty - 1) / 9) * plotW;
-  const toY = (value: number) => padding + plotH - ((value - 1) / 9) * plotH;
+  const toX = (difficulty: number) => padding + difficulty / 10 * plotW;
+  const toY = (value: number) => padding + plotH - value / 10 * plotH;
   const openROI = (opportunity: Opportunity) => {
     setSelectedOpportunity(opportunity.id);
     router.push("/roi");
@@ -36,8 +35,8 @@ export function PriorityMatrix({ opportunities }: PriorityMatrixProps) {
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">{t("clickOpportunityForRoi")}</p>
         <div className="flex gap-5 text-xs font-semibold text-muted-foreground">
-          <span>{t("businessValueShort")}: 1–10</span>
-          <span>{t("difficultyShort")}: 1–10</span>
+          <span>{t("businessValueShort")}: 0–10</span>
+          <span>{t("difficultyShort")}: 0–10</span>
         </div>
       </div>
 
@@ -55,8 +54,8 @@ export function PriorityMatrix({ opportunities }: PriorityMatrixProps) {
           ))}
           <line x1={padding} y1={padding + plotH} x2={padding + plotW} y2={padding + plotH} stroke="rgba(29,26,23,0.35)" />
           <line x1={padding} y1={padding} x2={padding} y2={padding + plotH} stroke="rgba(29,26,23,0.35)" />
-          <line x1={toX(5.5)} y1={padding} x2={toX(5.5)} y2={padding + plotH} stroke="rgba(29,26,23,0.18)" />
-          <line x1={padding} y1={toY(5.5)} x2={padding + plotW} y2={toY(5.5)} stroke="rgba(29,26,23,0.18)" />
+          <line x1={toX(5)} y1={padding} x2={toX(5)} y2={padding + plotH} stroke="rgba(29,26,23,0.18)" />
+          <line x1={padding} y1={toY(5)} x2={padding + plotW} y2={toY(5)} stroke="rgba(29,26,23,0.18)" />
 
           <text x={padding + plotW / 2} y={height - 12} textAnchor="middle" className="fill-muted-foreground text-[12px]">
             {t("implementationDifficulty")} →
@@ -70,8 +69,8 @@ export function PriorityMatrix({ opportunities }: PriorityMatrixProps) {
           <text x={padding + plotW / 2 + 14} y={padding + plotH / 2 + 24} className="fill-muted-foreground text-[12px] font-semibold">{t("avoid")}</text>
 
           {opportunities.map((opportunity, index) => {
-            const cx = toX(opportunity.difficultyScore) + ((index % 3) - 1) * 9;
-            const cy = toY(opportunity.valueScore) + ((index % 4) - 1.5) * 7;
+            const cx = toX(opportunity.difficultyScore);
+            const cy = toY(opportunity.valueScore);
             const hovered = hoveredId === opportunity.id;
             const above = index % 2 === 0;
             const labelX = Math.min(Math.max(cx - 76, padding + 4), padding + plotW - 156);
@@ -80,11 +79,18 @@ export function PriorityMatrix({ opportunities }: PriorityMatrixProps) {
             return (
               <g
                 key={opportunity.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`${td(opportunity.title)}. ${t("businessValueShort")} ${opportunity.valueScore.toFixed(1)}. ${t("difficultyShort")} ${opportunity.difficultyScore.toFixed(1)}`}
+                onFocus={() => setHoveredId(opportunity.id)}
+                onBlur={() => setHoveredId(null)}
+                onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openROI(opportunity); } }}
                 onMouseEnter={() => setHoveredId(opportunity.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => openROI(opportunity)}
                 className="cursor-pointer"
               >
+                <title>{td(opportunity.title)}</title>
                 <line x1={cx} y1={cy} x2={cx} y2={above ? labelY + 42 : labelY} stroke="rgba(29,26,23,0.24)" />
                 <rect
                   x={labelX}
@@ -130,13 +136,14 @@ export function PriorityMatrix({ opportunities }: PriorityMatrixProps) {
             <span className="flex-1">
               <span className="block text-lg font-semibold tracking-[-0.03em]">{td(opportunity.title)}</span>
               <span className="mt-2 block text-sm text-muted-foreground">
-                {t("businessValueShort")} {opportunity.valueScore.toFixed(1)} · {t("difficultyShort")} {opportunity.difficultyScore.toFixed(1)} · {formatCurrency(opportunity.annualSavings)}{t("perYear")}
+                {t("businessValueShort")} {opportunity.valueScore.toFixed(1)} · {t("difficultyShort")} {opportunity.difficultyScore.toFixed(1)} · {t("advice.cashYear1")}: {new Intl.NumberFormat(language, { style: "currency", currency: opportunity.currency ?? "EUR", maximumFractionDigits: 0 }).format(opportunity.annualSavings)}
               </span>
             </span>
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
         ))}
       </div>
+      <p className="mt-6 text-sm leading-relaxed text-muted-foreground">{t("advice.scoring")}</p>
     </section>
   );
 }

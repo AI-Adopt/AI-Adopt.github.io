@@ -1,89 +1,74 @@
 # AdoptAI
 
-A modern AI-native SaaS web application that helps companies discover, prioritize, and evaluate AI implementation opportunities.
+Decision support for AI investments: measure business processes, compare implementation options and build an auditable financial case. Six languages: English, Spanish, French, German, Portuguese and Italian.
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8)
+## What It Does
 
-## Features
+- Guided assessment with process-specific workload, labor economics, evidence, budget, timing, software stack and readiness.
+- Ten curated AI opportunity types, each with its own borderless visual asset and implementation shortlist.
+- Shared financial model across analysis, prioritization, simulation and executive recommendation.
+- Cash savings separated from non-cash capacity gains; implementation delay, adoption ramp, recurring costs, human review and downside assumptions.
+- Three editable scenarios, 12-month ROI on total costs, 24-month net value, 36-month NPV, payback and peak funding.
+- Per-opportunity persistence, explicit currency conversion, CSV export and browser printing.
+- Source-backed implementation guide with official product pages and partner directories. This is a curated guide, not a live generative chatbot or market ranking.
 
-- **Premium landing page** — Futuristic SaaS design with animated floating opportunity cards
-- **Business discovery wizard** — Typeform-inspired multi-step onboarding flow
-- **AI opportunity detection** — Simulated analysis engine generating ranked recommendations
-- **Prioritization matrix** — Interactive 2×2 matrix (value vs. difficulty) with detail modals
-- **ROI simulator** — Dynamic calculator with premium Recharts visualizations
-- **Executive recommendation** — Final summary with reasoning and next steps
+Read [the methodology](docs/METHODOLOGY.md) for formulas, assumptions, sources, limitations and validation requirements. Outputs are estimates, not supplier quotes, certified advice or guaranteed returns.
 
-## Tech Stack
+## Development
 
-- Next.js 15 (App Router)
-- TypeScript
-- Tailwind CSS + shadcn/ui
-- Framer Motion
-- Recharts
-- Supabase (optional persistence)
+Next.js 15, React, TypeScript, Tailwind, Framer Motion and Recharts. Use Node.js 22 and the pnpm version pinned in `package.json`.
 
-## Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Copy environment variables (optional)
-cp .env.example .env.local
-
-# Run development server
-npm run dev
+```sh
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [localhost:3000](http://localhost:3000).
 
-## Product Flow
-
-1. `/` — Landing page with hero and floating AI opportunity cards
-2. `/onboarding` — 7-step discovery wizard
-3. `/analysis` — AI analysis simulation + opportunity cards
-4. `/prioritize` — Interactive prioritization matrix
-5. `/roi` — ROI calculator with charts
-6. `/recommendation` — Executive summary and final recommendation
-
-## Supabase Setup (Optional)
-
-1. Create a Supabase project
-2. Run `supabase/schema.sql` in the SQL Editor
-3. Add credentials to `.env.local`
-
-Without Supabase, assessment data persists in `localStorage`.
-
-## Deploy to GitHub Pages
-
-The project is configured as a static Next.js export and deploys automatically
-to GitHub Pages from the `master` branch.
-
-1. Create the GitHub repository `AI-Adopt/AI-Adopt.github.io`.
-2. Push this project to its `master` branch.
-3. In the repository, open **Settings > Pages**.
-4. Under **Build and deployment > Source**, select **GitHub Actions**.
-5. Wait for the `Deploy to GitHub Pages` workflow to finish.
-
-The application will be available at:
-
-`https://ai-adopt.github.io/`
-
-To verify the same static export locally:
-
-```bash
-npm run build:pages
+```sh
+pnpm test
+pnpm lint
+pnpm build:pages
 ```
 
-The generated website is written to `out/`.
+The build exports HTML and assets to `out/`. Google Fonts are fetched at build time and served locally in the exported website.
 
-Supabase remains optional. To enable persistence when deploying through GitHub
-Actions, add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` as
-repository variables and expose them in the build step. Without them, the app
-uses browser `localStorage`.
+Browser QA runs against that exact static export:
 
-## License
+```sh
+# Requires Playwright and Edge, or set PLAYWRIGHT_MODULE and BROWSER_CHANNEL.
+node tests/browser-qa.cjs
+```
 
-MIT
+It covers the complete journey in six languages at desktop and two mobile sizes. Screenshots are written to ignored `artifacts/`.
+
+## User Journey
+
+1. `/`: interactive landing preview, entering assessment at the first step.
+2. `/onboarding`: company context, economics, process selection, a measurement step per process, readiness and review.
+3. `/analysis`: individually ranked opportunities, with the same cash figures as the simulator.
+4. `/prioritize`: value/difficulty comparison with keyboard-accessible links to each simulation.
+5. `/roi`: progressively edited financial assumptions, scenarios, results and implementation guidance.
+6. `/recommendation`: the selected opportunity's current scenario, financial evidence and validation steps.
+
+## Data and Privacy
+
+The current assessment runs entirely in the browser. No API keys are required. Aggregate inputs and financial assumptions persist in `localStorage`; no automatic cloud upload occurs. The previous stored version is backed up locally before migration to financial model 3. Starting a new assessment clears current data and that backup.
+
+Legacy Supabase helpers remain in the repository but are not invoked automatically by this experience. Enabling future cloud persistence or a generative advisor requires an explicit data-handling design and secure backend. Do not put private API keys in `NEXT_PUBLIC_*` variables.
+
+## GitHub Pages
+
+Live site: [ai-adopt.github.io](https://ai-adopt.github.io/).
+
+Repository: [AI-Adopt/AI-Adopt.github.io](https://github.com/AI-Adopt/AI-Adopt.github.io).
+
+**Develop and deploy only from `experience-redesign-v2`. Keep `main` unchanged. Do not merge automatically.**
+
+The `Deploy to GitHub Pages` workflow installs from the lockfile, tests the financial model, builds the static export and publishes it. In repository Settings > Pages, the source must be GitHub Actions. The deployment job is restricted to `experience-redesign-v2`.
+
+```sh
+git switch experience-redesign-v2
+git push origin experience-redesign-v2
+```

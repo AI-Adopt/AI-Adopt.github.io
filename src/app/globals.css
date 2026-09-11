@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+@media print {
+  header, nav, button, textarea, input, select { display: none !important; }
+  main { padding: 0 !important; }
+  aside, footer { position: static !important; }
+  * { box-shadow: none !important; print-color-adjust: exact; }
+  body { background: white; }
+}
+
 @layer base {
   :root {
     --background: 42 33% 96%;
@@ -33,6 +45,8 @@
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
   }
+
+  h1, h2, h3, p { overflow-wrap: anywhere; }
 
   ::selection {
     background: #1d1a17;
